@@ -1,10 +1,15 @@
 <template>
     <div>
-
         <h2>{{chartOptions.chart.title}}</h2>
         <GChart
           type="PieChart"
           :data="populations"
+          :options="chartOptions"
+        />
+        <h2>Areas over 5 Million Units</h2>
+         <GChart
+          type="PieChart"
+          :data="areas"
           :options="chartOptions"
         />
     </div>
@@ -16,7 +21,7 @@ export default {
     data: function () {
         return {
             populations:[],
-            resultsOfFetch:[],
+            areas: [],
             chartOptions: {
             chart: {
             title: 'Populations By Country Over 100 Million',
@@ -51,7 +56,20 @@ export default {
                     }
                     result.unshift(['Country', 'Population']);
                     this.populations = result;
-                    return this.populations
+                });
+            fetch('https://restcountries.eu/rest/v2/all?fields=name;area')
+                .then(res => res.json())
+                .then(data => {
+                    const origArray = data;
+                    let result = [];
+                    for (const object of origArray) {
+                        if (object['area'] > 5000000) {
+                            let array = [object['name'], object['area']];
+                            result.push(array);
+                        }
+                    }
+                    result.unshift(['Country', 'Area']);
+                    this.areas = result;
                 });
         }
     }
